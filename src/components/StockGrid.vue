@@ -1,90 +1,101 @@
 <template>
-  <div>
-    <ag-grid-vue
-      class="ag-theme-alpine"
-      style="width: 100%; height: 500px"
-      :rowData="rowData"
-      :columnDefs="columnDefs"
-      :defaultColDef="defaultColDef"
-      :modules="modules"
-      :animateRows="true"
-      rowModelType="clientSide"
-    ></ag-grid-vue>
-  </div>
+  <v-container>
+    <v-card>
+      <v-card-title>
+        <v-spacer></v-spacer>
+        <v-text-field
+          v-model="search"
+          label="Search"
+          class="ml-4"
+          outlined
+        ></v-text-field>
+      </v-card-title>
+      <v-data-table
+        :headers="headers"
+        :items="stocks"
+        :search="search"
+        class="elevation-1"
+      >
+        <template v-slot:top>
+          <v-toolbar flat>
+            <v-toolbar-title>Stock Data</v-toolbar-title>
+            <v-spacer></v-spacer>
+          </v-toolbar>
+        </template>
+        <template v-slot:[`header.symbol`]>
+          <strong>Stock</strong>
+        </template>
+        <template v-slot:[`header.timeStamp`]>
+          <strong>Time Stamp</strong>
+        </template>
+        <template v-slot:[`header.openPrice`]>
+          <strong>Open Price</strong>
+        </template>
+        <template v-slot:[`header.highPrice`]>
+          <strong>High Price</strong>
+        </template>
+        <template v-slot:[`header.lowPrice`]>
+          <strong>Low Price</strong>
+        </template>
+        <template v-slot:[`header.closePrice`]>
+          <strong>Close Price</strong>
+        </template>
+        <template v-slot:[`header.volume`]>
+          <strong>Volume</strong>
+        </template>
+        <template v-slot:[`item.openPrice`]="{ item }">
+          {{ `$${item.openPrice}` }}
+        </template>
+        <template v-slot:[`item.highPrice`]="{ item }">
+          {{ `$${item.highPrice}` }}
+        </template>
+        <template v-slot:[`item.lowPrice`]="{ item }">
+          {{ `$${item.lowPrice}` }}
+        </template>
+        <template v-slot:[`item.closePrice`]="{ item }">
+          {{ `$${item.closePrice}` }}
+        </template>
+        <template v-slot:[`item.timeStamp`]="{ item }">
+          {{ new Date(item.timeStamp).toLocaleString() }}
+        </template>
+      </v-data-table>
+    </v-card>
+  </v-container>
 </template>
 
 <script>
-import { AgGridVue } from "ag-grid-vue3";
-import { ClientSideRowModelModule } from "@ag-grid-community/client-side-row-model";
 import api from "@/services/api";
 
 export default {
   name: "StockGrid",
-  components: {
-    AgGridVue,
-  },
   data() {
     return {
-      rowData: [],
-      columnDefs: [
-        { headerName: "Symbol", field: "symbol", sortable: true, filter: true },
-        {
-          headerName: "TimeStamp",
-          field: "timeStamp",
-          sortable: true,
-          filter: true,
-        },
-        {
-          headerName: "Open Price",
-          field: "openPrice",
-          sortable: true,
-          filter: true,
-        },
-        {
-          headerName: "High Price",
-          field: "highPrice",
-          sortable: true,
-          filter: true,
-        },
-        {
-          headerName: "Low Price",
-          field: "lowPrice",
-          sortable: true,
-          filter: true,
-        },
-        {
-          headerName: "Close Price",
-          field: "closePrice",
-          sortable: true,
-          filter: true,
-        },
-        { headerName: "Volume", field: "volume", sortable: true, filter: true },
+      search: "",
+      stocks: [],
+      headers: [
+        { text: "Symbol", value: "symbol", sortable: true },
+        { text: "TimeStamp", value: "timeStamp", sortable: true },
+        { text: "Open Price", value: "openPrice", sortable: true },
+        { text: "High Price", value: "highPrice", sortable: true },
+        { text: "Low Price", value: "lowPrice", sortable: true },
+        { text: "Close Price", value: "closePrice", sortable: true },
+        { text: "Volume", value: "volume", sortable: true },
       ],
-      defaultColDef: {
-        resizable: true,
-        sortable: true,
-        filter: true,
-      },
-      modules: [ClientSideRowModelModule],
     };
   },
-  mounted() {
-    this.fetchData();
+  async mounted() {
+    await this.fetchStocks();
   },
   methods: {
-    async fetchData() {
+    async fetchStocks() {
       try {
         const response = await api.get("/stock");
-        this.rowData = response.data;
+        this.stocks = response.data;
       } catch (error) {
-        console.error("Erro ao carregar os dados: ", error);
+        console.error("Error loading stock data: ", error);
       }
     },
   },
 };
 </script>
-
-<style scoped>
-@import "ag-grid-community/styles/ag-grid.css";
-@import "ag-grid-community/styles/ag-theme-alpine.css";
-</style>
+<style scoped></style>
