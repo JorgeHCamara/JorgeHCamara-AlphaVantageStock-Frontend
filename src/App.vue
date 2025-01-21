@@ -1,16 +1,21 @@
 <template>
-  <div>
-    <h1>Stock Data</h1>
-    <StockGrid />
-  </div>
+  <v-app>
+    <v-main>
+      <router-view/>
+    </v-main>
+  </v-app>
 </template>
 
-<script>
-import StockGrid from "./components/StockGrid.vue";
+<script lang="ts">
+import { defineComponent } from 'vue'
 
-export default {
-  components: {
-    StockGrid,
+export default defineComponent({
+  name: 'App',
+
+  data () {
+    return {
+      //
+    }
   },
-};
+})
 </script>
